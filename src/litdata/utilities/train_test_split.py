@@ -12,7 +12,7 @@ from litdata.utilities.subsample import shuffle_lists_together, subsample_filena
 
 
 def train_test_split(
-    streaming_dataset: StreamingDataset, splits: list[float], seed: int = 42
+    streaming_dataset: StreamingDataset, splits: list[float], seed: int | None = 42
 ) -> list[StreamingDataset]:
     """Splits a StreamingDataset into multiple subsets for training, testing, and validation.
 
@@ -23,7 +23,7 @@ def train_test_split(
         streaming_dataset: An instance of StreamingDataset that needs to be split.
         splits: A list of floats representing the proportion of data to be allocated to each split
                              (e.g., [0.8, 0.1, 0.1] for 80% training, 10% testing, and 10% validation).
-        seed: An integer used to seed the random number generator for reproducibility.
+        seed: An integer or None used to seed the random number generator for reproducibility. If None, no shuffling is performed.
 
     Returns:
         List[StreamingDataset]: A list of StreamingDataset instances, where each element represents a split of the
@@ -71,9 +71,10 @@ def train_test_split(
 
     dataset_length = sum([my_roi[1] - my_roi[0] for my_roi in dummy_subsampled_roi])
 
-    subsampled_chunks, dummy_subsampled_roi = shuffle_lists_together(
-        subsampled_chunks, dummy_subsampled_roi, np.random.RandomState([seed])
-    )
+    if seed is not None:
+        subsampled_chunks, dummy_subsampled_roi = shuffle_lists_together(
+            subsampled_chunks, dummy_subsampled_roi, np.random.RandomState([seed])
+        )
 
     item_count_list = [int(dataset_length * split) for split in splits]
 
